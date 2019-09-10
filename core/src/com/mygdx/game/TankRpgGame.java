@@ -8,6 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class TankRpgGame extends ApplicationAdapter {
     SpriteBatch batch;
     private Tank tank;
+    private Bullet bullet;
+
+    public Bullet getBullet() {
+        return bullet;
+    }
 
     //Прицеливание мышкой
 
@@ -15,7 +20,8 @@ public class TankRpgGame extends ApplicationAdapter {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        tank = new Tank();
+        tank = new Tank(this);
+        bullet = new Bullet();
 
     }
 
@@ -28,12 +34,18 @@ public class TankRpgGame extends ApplicationAdapter {
         batch.begin();
 
         tank.render(batch);
+        if (bullet.isActive()) {
+            bullet.render(batch);
+        }
 
         batch.end();
     }
 
     public void update(float dt) {
         tank.update(dt);
+        if (bullet.isActive()) {
+            bullet.update(dt);
+        }
     }
 
     @Override
