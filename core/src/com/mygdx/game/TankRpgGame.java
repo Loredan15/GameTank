@@ -4,24 +4,30 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.mygdx.game.Unit.PlayerTank;
 
 public class TankRpgGame extends ApplicationAdapter {
-    SpriteBatch batch;
-    private Tank tank;
-    private Bullet bullet;
+    private SpriteBatch batch;
+    private Map map;
+    private PlayerTank player;
+    private BulletEmitter bulletEmitter;
+    private BotEmitter botEmitter;
+    private float gameTimer;
 
-    public Bullet getBullet() {
-        return bullet;
+
+    public BulletEmitter getBulletEmitter() {
+        return bulletEmitter;
     }
-
-    //Прицеливание мышкой
-
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        tank = new Tank(this);
-        bullet = new Bullet();
+        map = new Map();
+        player = new PlayerTank(this);
+        bulletEmitter = new BulletEmitter();
+        botEmitter = new BotEmitter(this);
+        botEmitter.activate(MathUtils.random(0, Gdx.graphics.getWidth()), MathUtils.random(0, Gdx.graphics.getHeight()));
 
     }
 
@@ -33,19 +39,23 @@ public class TankRpgGame extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
 
-        tank.render(batch);
-        if (bullet.isActive()) {
-            bullet.render(batch);
-        }
+        map.render(batch);
+        player.render(batch);
+        botEmitter.render(batch);
+        bulletEmitter.render(batch);
 
         batch.end();
     }
 
     public void update(float dt) {
-        tank.update(dt);
-        if (bullet.isActive()) {
-            bullet.update(dt);
+        gameTimer += dt;
+        if (gameTimer > 10.0f) {
+            gameTimer = 0;
+            botEmitter.activate(MathUtils.random(0, Gdx.graphics.getWidth()), MathUtils.random(0, Gdx.graphics.getHeight()));
         }
+        player.update(dt);
+        botEmitter.update(dt);
+        bulletEmitter.update(dt);
     }
 
     @Override
