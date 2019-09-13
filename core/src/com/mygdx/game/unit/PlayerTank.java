@@ -1,23 +1,32 @@
-package com.mygdx.game.Unit;
+package com.mygdx.game.unit;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.TankRpgGame;
 import com.mygdx.game.Weapon;
+import com.mygdx.game.utils.TankOwner;
 
 public class PlayerTank extends Tank {
-    public PlayerTank(TankRpgGame game) {
+
+    int lifes;
+
+    public PlayerTank(TankRpgGame game, TextureAtlas atlas) {
         super(game);
-        this.weapon = new Weapon();
-        this.texture = new Texture("player_tank_base.png");
+        this.ownerType = TankOwner.PLAYER;
+        this.weapon = new Weapon(atlas);
+        this.texture = atlas.findRegion("playerTankBase");
+        this.textureHp = atlas.findRegion("bar");
         this.position = new Vector2(100.0f, 100.0f);
         this.speed = 100.0f;
-        this.width = texture.getWidth();
-        this.height = texture.getHeight();
+        this.width = texture.getRegionWidth();
+        this.height = texture.getRegionHeight();
         this.hpMax = 10;
         this.hp = this.hpMax;
+        this.circle = new Circle(position.x, position.y, width + height / 2);
+        this.lifes = 5;
     }
 
     public void update(float dt) {
@@ -29,6 +38,13 @@ public class PlayerTank extends Tank {
         if (Gdx.input.isTouched()) {
             fire(dt);
         }
+        super.update(dt);
+    }
+
+    @Override
+    public void destroy() {
+        lifes--;
+        hp = hpMax;
     }
 
     public void checkMovement(float dt) {

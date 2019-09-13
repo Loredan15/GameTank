@@ -2,8 +2,10 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.unit.Tank;
 
 public class Bullet {
+    private Tank owner;
     private Vector2 position;
     private Vector2 velocity;
     private int damage;
@@ -11,6 +13,10 @@ public class Bullet {
 
     public int getDamage() {
         return damage;
+    }
+
+    public Tank getOwner() {
+        return owner;
     }
 
     public Vector2 getPosition() {
@@ -33,7 +39,8 @@ public class Bullet {
         this.active = false;
     }
 
-    public void activate(float x, float y, float vx, float vy, int damage) {
+    public void activate(Tank owner, float x, float y, float vx, float vy, int damage) {
+        this.owner = owner;
         this.position.set(x, y);
         this.velocity.set(vx, vy);
         this.active = true;

@@ -4,8 +4,11 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
-import com.mygdx.game.Unit.PlayerTank;
+import com.mygdx.game.unit.BotTank;
+import com.mygdx.game.unit.PlayerTank;
+import com.mygdx.game.unit.Tank;
 
 public class TankRpgGame extends ApplicationAdapter {
     private SpriteBatch batch;
@@ -15,6 +18,12 @@ public class TankRpgGame extends ApplicationAdapter {
     private BotEmitter botEmitter;
     private float gameTimer;
 
+    private static final boolean FRIENDLY_FIRE = false;
+
+
+    public PlayerTank getPlayer() {
+        return player;
+    }
 
     public BulletEmitter getBulletEmitter() {
         return bulletEmitter;
@@ -22,11 +31,12 @@ public class TankRpgGame extends ApplicationAdapter {
 
     @Override
     public void create() {
+        TextureAtlas atlas = new TextureAtlas("game.pack");
         batch = new SpriteBatch();
-        map = new Map();
-        player = new PlayerTank(this);
-        bulletEmitter = new BulletEmitter();
-        botEmitter = new BotEmitter(this);
+        map = new Map(atlas);
+        player = new PlayerTank(this, atlas);
+        bulletEmitter = new BulletEmitter(atlas);
+        botEmitter = new BotEmitter(this, atlas);
         botEmitter.activate(MathUtils.random(0, Gdx.graphics.getWidth()), MathUtils.random(0, Gdx.graphics.getHeight()));
 
     }
@@ -49,13 +59,45 @@ public class TankRpgGame extends ApplicationAdapter {
 
     public void update(float dt) {
         gameTimer += dt;
-        if (gameTimer > 10.0f) {
+        if (gameTimer > 5.0f) {
             gameTimer = 0;
             botEmitter.activate(MathUtils.random(0, Gdx.graphics.getWidth()), MathUtils.random(0, Gdx.graphics.getHeight()));
         }
         player.update(dt);
         botEmitter.update(dt);
         bulletEmitter.update(dt);
+        checkCollisions();
+    }
+
+    public void checkCollisions() {
+        for (int i = 0; i < bulletEmitter.getBullets().length; i++) {
+            Bullet bullet = bulletEmitter.getBullets()[i];
+            if (bullet.isActive()) {
+                for (int j = 0; j < botEmitter.getBots().length; j++) {
+                    BotTank bot = botEmitter.getBots()[j];
+                    if (bot.isActive()) {
+                        if (checkBulletAndTank(bot, bullet) && bot.getCircle().contains(bullet.getPosition())) {
+                            bullet.deactivate();
+                            bot.takeDamage(bullet.getDamage());
+                            break;
+                        }
+                    }
+                }
+                if (checkBulletAndTank(player, bullet) && player.getCircle().contains(bullet.getPosition())) {
+                    bullet.deactivate();
+                    player.takeDamage(bullet.getDamage());
+                }
+                map.checjWallAndBulletCollision(bullet);
+            }
+        }
+    }
+
+    public boolean checkBulletAndTank(Tank tank, Bullet bullet) {
+        if (!FRIENDLY_FIRE) {
+            return tank.getOwnerType() != bullet.getOwner().getOwnerType();
+        } else {
+            return tank != bullet.getOwner();
+        }
     }
 
     @Override
