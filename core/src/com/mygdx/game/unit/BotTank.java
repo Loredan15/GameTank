@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.TankRpgGame;
 import com.mygdx.game.Weapon;
 import com.mygdx.game.utils.Direction;
@@ -15,6 +16,7 @@ public class BotTank extends Tank {
     float aiTimerTo;
     float pursuilRadius;
     boolean active;
+    Vector3 lastPosition;
 
     public boolean isActive() {
         return active;
@@ -27,6 +29,7 @@ public class BotTank extends Tank {
         this.texture = atlas.findRegion("botTankBase");
         this.textureHp = atlas.findRegion("bar");
         this.position = new Vector2(500.0f, 500.0f);
+        this.lastPosition = new Vector3(0.0f, 0.0f, 0.0f);
         this.speed = 100.0f;
         this.width = texture.getRegionWidth();
         this.height = texture.getRegionHeight();
@@ -61,12 +64,23 @@ public class BotTank extends Tank {
             preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
             angle = preferredDirection.getAngle();
         }
-        position.add(speed * preferredDirection.getVx() * dt, speed * preferredDirection.getVy() * dt);
+        move(preferredDirection, dt);
 
         float dst = this.position.dst(game.getPlayer().getPosition());
         if (dst < pursuilRadius) {
             rotateTurretToPoint(game.getPlayer().getPosition().x, game.getPlayer().getPosition().y, dt);
-            fire(dt);
+            fire();
+        }
+
+        if (Math.abs(position.x - lastPosition.x) < 0.5f && Math.abs(position.y - lastPosition.y) < 0.5f) {
+            lastPosition.z += dt;
+            if (lastPosition.z > 0.3f) {
+                aiTimer += 10.0f;
+            }
+        } else {
+            lastPosition.x = position.x;
+            lastPosition.y = position.y;
+            lastPosition.z = 0.0f;
         }
 
         super.update(dt);

@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.TankRpgGame;
 import com.mygdx.game.Weapon;
+import com.mygdx.game.utils.Direction;
 import com.mygdx.game.utils.TankOwner;
 import com.mygdx.game.utils.Utils;
 
@@ -17,6 +18,7 @@ public abstract class Tank {
     TextureRegion texture;
     TextureRegion textureHp;
     Vector2 position;
+    Vector2 tmp;
     Circle circle;
 
     int hp;
@@ -45,6 +47,7 @@ public abstract class Tank {
 
     public Tank(TankRpgGame game) {
         this.game = game;
+        this.tmp = new Vector2(0.0f, 0.0f);
     }
 
     public void render(SpriteBatch batch) {
@@ -92,12 +95,23 @@ public abstract class Tank {
         turretAngle = Utils.angleToFromNegPiToPosPi(turretAngle);
     }
 
+    public void move(Direction direction, float dt) {
+        tmp.set(position);
+        tmp.add(speed * direction.getVx() * dt, speed * direction.getVy() * dt);
+        if (game.getMap().isAreaClear(tmp.x, tmp.y, width / 2)) {
+            angle = direction.getAngle();
+            position.set(tmp);
+        }
 
-    public void fire(float dt) {
+
+    }
+
+
+    public void fire() {
         if (fireTimer >= weapon.getFirePeriod()) {
             fireTimer = 0.0f;
             float angleRad = (float) Math.toRadians(turretAngle);
-            game.getBulletEmitter().activate(this, position.x, position.y, 320.0f * (float) Math.cos(angleRad), 320.0f * (float) Math.sin(angleRad), weapon.getDamage());
+            game.getBulletEmitter().activate(this, position.x, position.y, weapon.getProjectileSpeed() * (float) Math.cos(angleRad), weapon.getProjectileSpeed() * (float) Math.sin(angleRad), weapon.getDamage(), weapon.getProjectileLifeTime());
         }
     }
 

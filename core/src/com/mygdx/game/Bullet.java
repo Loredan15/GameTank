@@ -10,6 +10,9 @@ public class Bullet {
     private Vector2 velocity;
     private int damage;
     private boolean active;
+    private float currentTime;
+    private float maxTime;
+
 
     public int getDamage() {
         return damage;
@@ -39,18 +42,24 @@ public class Bullet {
         this.active = false;
     }
 
-    public void activate(Tank owner, float x, float y, float vx, float vy, int damage) {
+    public void activate(Tank owner, float x, float y, float vx, float vy, int damage, float maxTime) {
         this.owner = owner;
         this.position.set(x, y);
         this.velocity.set(vx, vy);
         this.active = true;
         this.damage = damage;
+        this.maxTime = maxTime;
+        this.currentTime = 0.0f;
     }
 
     public void update(float dt) {
         //x += vx * dt;
         //y += vy * dt;
         position.mulAdd(velocity, dt);
+        currentTime += dt;
+        if (currentTime >= maxTime) {
+            deactivate();
+        }
 
         if (position.x < 0.0f || position.x > Gdx.graphics.getWidth() || position.y < 0.0f || position.y > Gdx.graphics.getHeight()) {
             active = false;

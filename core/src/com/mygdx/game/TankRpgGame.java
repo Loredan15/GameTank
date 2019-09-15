@@ -21,6 +21,10 @@ public class TankRpgGame extends ApplicationAdapter {
     private static final boolean FRIENDLY_FIRE = false;
 
 
+    public Map getMap() {
+        return map;
+    }
+
     public PlayerTank getPlayer() {
         return player;
     }
@@ -37,7 +41,7 @@ public class TankRpgGame extends ApplicationAdapter {
         player = new PlayerTank(this, atlas);
         bulletEmitter = new BulletEmitter(atlas);
         botEmitter = new BotEmitter(this, atlas);
-        botEmitter.activate(MathUtils.random(0, Gdx.graphics.getWidth()), MathUtils.random(0, Gdx.graphics.getHeight()));
+        gameTimer = 6.0f;
 
     }
 
@@ -61,7 +65,14 @@ public class TankRpgGame extends ApplicationAdapter {
         gameTimer += dt;
         if (gameTimer > 5.0f) {
             gameTimer = 0;
-            botEmitter.activate(MathUtils.random(0, Gdx.graphics.getWidth()), MathUtils.random(0, Gdx.graphics.getHeight()));
+
+            float coordx, coordy;
+            do {
+                coordx = MathUtils.random(0, Gdx.graphics.getWidth());
+                coordy = MathUtils.random(0, Gdx.graphics.getHeight());
+            } while (!map.isAreaClear(coordx, coordy, 20));
+
+            botEmitter.activate(coordx, coordy);
         }
         player.update(dt);
         botEmitter.update(dt);
@@ -87,7 +98,7 @@ public class TankRpgGame extends ApplicationAdapter {
                     bullet.deactivate();
                     player.takeDamage(bullet.getDamage());
                 }
-                map.checjWallAndBulletCollision(bullet);
+                map.checkWallAndBulletCollision(bullet);
             }
         }
     }

@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.TankRpgGame;
 import com.mygdx.game.Weapon;
+import com.mygdx.game.utils.Direction;
 import com.mygdx.game.utils.TankOwner;
 
 public class PlayerTank extends Tank {
@@ -36,7 +37,7 @@ public class PlayerTank extends Tank {
         rotateTurretToPoint(mx, my, dt);
         //isKeyJustPressed - отслеживает нажатие кнопки, зажать нельзя
         if (Gdx.input.isTouched()) {
-            fire(dt);
+            fire();
         }
         super.update(dt);
     }
@@ -49,17 +50,13 @@ public class PlayerTank extends Tank {
 
     public void checkMovement(float dt) {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            position.x -= speed * dt;
-            angle = 180.0f;
+            move(Direction.LEFT, dt);
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            position.x += speed * dt;
-            angle = 0.0f;
+            move(Direction.RIGHT, dt);
         } else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            position.y += speed * dt;
-            angle = 90.0f;
+            move(Direction.UP, dt);
         } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            position.y -= speed * dt;
-            angle = 270.0f;
+            move(Direction.DOWN, dt);
         }
     }
 }
