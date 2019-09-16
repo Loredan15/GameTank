@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.mygdx.game.TankRpgGame;
+import com.mygdx.game.GameScreen;
 import com.mygdx.game.Weapon;
 import com.mygdx.game.utils.Direction;
 import com.mygdx.game.utils.TankOwner;
@@ -22,7 +22,7 @@ public class BotTank extends Tank {
         return active;
     }
 
-    public BotTank(TankRpgGame game, TextureAtlas atlas) {
+    public BotTank(GameScreen game, TextureAtlas atlas) {
         super(game);
         this.ownerType = TankOwner.AI;
         this.weapon = new Weapon(atlas);
@@ -66,9 +66,9 @@ public class BotTank extends Tank {
         }
         move(preferredDirection, dt);
 
-        float dst = this.position.dst(game.getPlayer().getPosition());
+        float dst = this.position.dst(gameScreen.getPlayer().getPosition());
         if (dst < pursuilRadius) {
-            rotateTurretToPoint(game.getPlayer().getPosition().x, game.getPlayer().getPosition().y, dt);
+            rotateTurretToPoint(gameScreen.getPlayer().getPosition().x, gameScreen.getPlayer().getPosition().y, dt);
             fire();
         }
 

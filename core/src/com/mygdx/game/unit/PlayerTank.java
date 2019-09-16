@@ -2,10 +2,12 @@ package com.mygdx.game.unit;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.game.TankRpgGame;
+import com.mygdx.game.GameScreen;
 import com.mygdx.game.Weapon;
 import com.mygdx.game.utils.Direction;
 import com.mygdx.game.utils.TankOwner;
@@ -13,8 +15,9 @@ import com.mygdx.game.utils.TankOwner;
 public class PlayerTank extends Tank {
 
     int lifes;
+    int score;
 
-    public PlayerTank(TankRpgGame game, TextureAtlas atlas) {
+    public PlayerTank(GameScreen game, TextureAtlas atlas) {
         super(game);
         this.ownerType = TankOwner.PLAYER;
         this.weapon = new Weapon(atlas);
@@ -42,10 +45,18 @@ public class PlayerTank extends Tank {
         super.update(dt);
     }
 
+    public void addScore(int amount) {
+        score += amount;
+    }
+
     @Override
     public void destroy() {
         lifes--;
         hp = hpMax;
+    }
+
+    public void renderHUD(SpriteBatch batch, BitmapFont font24) {
+        font24.draw(batch, "Score:" + score + "\nLifes: " + lifes, 20, 700);
     }
 
     public void checkMovement(float dt) {
