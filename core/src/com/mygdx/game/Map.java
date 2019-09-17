@@ -7,16 +7,24 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class Map {
     public enum WallType {
-        HARD(0, 5, true), SOFT(1, 3, true), INDERSTRUCTABLE(2, 1, false), NONE(0, 0, false);
+        HARD(0, 5, true, false, false),
+        SOFT(1, 3, true, false, false),
+        INDERSTRUCTABLE(2, 1, false, false, false),
+        NONE(0, 0, false, true, true),
+        WATER(3, 1, false, false, true);
 
         int index;
         int maxHp;
+        boolean unitPassable;
+        boolean projectilePassable;
         boolean destructible;
 
-        WallType(int index, int maxHp, boolean destructable) {
+        WallType(int index, int maxHp, boolean destructable, boolean unitPassable, boolean projectilePassable) {
             this.index = index;
             this.maxHp = maxHp;
             this.destructible = destructable;
+            this.unitPassable = unitPassable;
+            this.projectilePassable = projectilePassable;
         }
     }
 
@@ -53,7 +61,7 @@ public class Map {
     private Cell cells[][];
 
     public Map(TextureAtlas atlas) {
-        this.wallsTexture = new TextureRegion(atlas.findRegion("walls")).split(CELL_SIZE, CELL_SIZE);
+        this.wallsTexture = new TextureRegion(atlas.findRegion("obstacles")).split(CELL_SIZE, CELL_SIZE);
         this.grassTexture = atlas.findRegion("grass40");
         this.cells = new Cell[SIZE_X][SIZE_Y];
         for (int i = 0; i < SIZE_X; i++) {
@@ -63,7 +71,8 @@ public class Map {
                 int cy = j / 4;
                 if (cx % 2 == 0 && cy % 2 == 0) {
                     if (MathUtils.random() < 0.8f) {
-                        cells[i][j].changeType(WallType.HARD);
+//                        cells[i][j].changeType(WallType.HARD);
+                        cells[i][j].changeType(WallType.WATER);
                     } else {
                         cells[i][j].changeType(WallType.SOFT);
                     }
@@ -86,7 +95,7 @@ public class Map {
         int cy = (int) bullet.getPosition().y / CELL_SIZE;
 
         if (cx >= 0 && cy >= 0 && cx < SIZE_X && cy <= SIZE_Y) {
-            if (cells[cx][cy].type != WallType.NONE) {
+            if (!cells[cx][cy].type.projectilePassable) {
                 cells[cx][cy].damage();
                 bullet.deactivate();
             }
@@ -115,7 +124,7 @@ public class Map {
 
         for (int i = leftX; i <= rightX; i++) {
             for (int j = bottonY; j <= topY; j++) {
-                if (cells[i][j].type != WallType.NONE) {
+                if (!cells[i][j].type.unitPassable) {
                     return false;
                 }
             }

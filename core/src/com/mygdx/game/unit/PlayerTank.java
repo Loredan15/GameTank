@@ -35,9 +35,11 @@ public class PlayerTank extends Tank {
 
     public void update(float dt) {
         checkMovement(dt);
-        float mx = Gdx.input.getX();
-        float my = Gdx.graphics.getHeight() - Gdx.input.getY();
-        rotateTurretToPoint(mx, my, dt);
+//        float mx = Gdx.input.getX();
+//        float my = Gdx.graphics.getHeight() - Gdx.input.getY();
+//        tmp.set(Gdx.input.getX(), Gdx.input.getY());
+//        ScreenManager.getInstance().getViewport().unproject(tmp);
+        rotateTurretToPoint(gameScreen.getMousePosition().x, gameScreen.getMousePosition().y, dt);
         //isKeyJustPressed - отслеживает нажатие кнопки, зажать нельзя
         if (Gdx.input.isTouched()) {
             fire();
