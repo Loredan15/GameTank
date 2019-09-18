@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.mygdx.game.utils.GameType;
 
 public class MenuScreen extends AbstractScreen {
     private SpriteBatch batch;
@@ -37,20 +38,20 @@ public class MenuScreen extends AbstractScreen {
         textButtonStyle.font = font24;
 
         Group group = new Group();
-        final TextButton startButton1 = new TextButton("Start 1 Player", textButtonStyle);
-        final TextButton startButton2 = new TextButton("Start 2 Players", textButtonStyle);
-        final TextButton exitButton = new TextButton("Exit Game", textButtonStyle);
+        final TextButton startButton1 = new TextButton("Start 1P", textButtonStyle);
+        final TextButton startButton2 = new TextButton("Start 2P", textButtonStyle);
+        final TextButton exitButton = new TextButton("Exit", textButtonStyle);
         startButton1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME);
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME, GameType.ONE_PLAYER);
             }
         });
 
         startButton2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME);
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME, GameType.TWO_PLAYERS);
             }
         });
         exitButton.addListener(new ClickListener() {
@@ -74,7 +75,7 @@ public class MenuScreen extends AbstractScreen {
     @Override
     public void render(float delta) {
         update(delta);
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0.5f, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
 

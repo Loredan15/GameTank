@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.mygdx.game.unit.BotTank;
 import com.mygdx.game.unit.PlayerTank;
 import com.mygdx.game.unit.Tank;
+import com.mygdx.game.utils.GameType;
 import com.mygdx.game.utils.KeysControl;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class GameScreen extends AbstractScreen {
     private BitmapFont font24;
     private TextureAtlas atlas;
     private Map map;
+    private GameType gameType;
+
     private List<PlayerTank> players;
     private BulletEmitter bulletEmitter;
     private BotEmitter botEmitter;
@@ -39,6 +42,9 @@ public class GameScreen extends AbstractScreen {
 
     private static final boolean FRIENDLY_FIRE = false;
 
+    public void setGameType(GameType gameType) {
+        this.gameType = gameType;
+    }
 
     public Map getMap() {
         return map;
@@ -58,6 +64,7 @@ public class GameScreen extends AbstractScreen {
 
     public GameScreen(SpriteBatch batch) {
         this.batch = batch;
+        this.gameType = GameType.ONE_PLAYER;
     }
 
     @Override
@@ -68,7 +75,9 @@ public class GameScreen extends AbstractScreen {
         map = new Map(atlas);
         players = new ArrayList<>();
         players.add(new PlayerTank(1, this, KeysControl.createStandartControl1(), atlas));
-        players.add(new PlayerTank(2, this, KeysControl.createStandartControl2(), atlas));
+        if (gameType == GameType.TWO_PLAYERS) {
+            players.add(new PlayerTank(2, this, KeysControl.createStandartControl2(), atlas));
+        }
         bulletEmitter = new BulletEmitter(atlas);
         botEmitter = new BotEmitter(this, atlas);
         gameTimer = 6.0f;

@@ -1,12 +1,14 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.game.utils.GameType;
 
 public class ScreenManager {
     public enum ScreenType {
@@ -54,13 +56,15 @@ public class ScreenManager {
         viewport.apply();
     }
 
-    public void setScreen(ScreenType screenType) {
+    public void setScreen(ScreenType screenType, Object... args) {
+        Gdx.input.setCursorCatched(false);
         Screen currentScreen = game.getScreen();
         switch (screenType) {
             case MENU:
                 game.setScreen(menuScreen);
                 break;
             case GAME:
+                gameScreen.setGameType((GameType) args[0]);
                 game.setScreen(gameScreen);
                 break;
         }
