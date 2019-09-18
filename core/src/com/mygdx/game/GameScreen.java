@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,12 +17,17 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.mygdx.game.unit.BotTank;
 import com.mygdx.game.unit.PlayerTank;
 import com.mygdx.game.unit.Tank;
+import com.mygdx.game.utils.KeysControl;
 
-public class GameScreen implements Screen {
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameScreen extends AbstractScreen {
     private SpriteBatch batch;
     private BitmapFont font24;
+    private TextureAtlas atlas;
     private Map map;
-    private PlayerTank player;
+    private List<PlayerTank> players;
     private BulletEmitter bulletEmitter;
     private BotEmitter botEmitter;
     private float gameTimer;
@@ -40,8 +44,8 @@ public class GameScreen implements Screen {
         return map;
     }
 
-    public PlayerTank getPlayer() {
-        return player;
+    public List<PlayerTank> getPlayers() {
+        return players;
     }
 
     public BulletEmitter getBulletEmitter() {
@@ -58,11 +62,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        TextureAtlas atlas = new TextureAtlas("game.pack");
+        atlas = new TextureAtlas("game.pack");
         font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
         cursor = new TextureRegion(atlas.findRegion("cursor"));
         map = new Map(atlas);
-        player = new PlayerTank(this, atlas);
+        players = new ArrayList<>();
+        players.add(new PlayerTank(1, this, KeysControl.createStandartControl1(), atlas));
+        players.add(new PlayerTank(2, this, KeysControl.createStandartControl2(), atlas));
         bulletEmitter = new BulletEmitter(atlas);
         botEmitter = new BotEmitter(this, atlas);
         gameTimer = 6.0f;
@@ -87,7 +93,7 @@ public class GameScreen implements Screen {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
             }
         });
 
@@ -98,6 +104,7 @@ public class GameScreen implements Screen {
         group.setPosition(1130, 640);
         stage.addActor(group);
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCursorCatched(true);
     }
 
     @Override
@@ -115,16 +122,22 @@ public class GameScreen implements Screen {
         batch.begin();
 
         map.render(batch);
-        player.render(batch);
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).render(batch);
+        }
+
+
         botEmitter.render(batch);
         bulletEmitter.render(batch);
-        player.renderHUD(batch, font24);
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).renderHUD(batch, font24);
+        }
+        batch.end();
+        stage.draw();
 
-
+        batch.begin();
         batch.draw(cursor, mousePosition.x - cursor.getRegionWidth() / 2, mousePosition.y - cursor.getRegionHeight() / 2, cursor.getRegionWidth() / 2, cursor.getRegionHeight() / 2, cursor.getRegionWidth(), cursor.getRegionHeight(), 1, 1, -worldTimer * 45);
         batch.end();
-
-        stage.draw();
     }
 
     public void update(float dt) {
@@ -144,7 +157,9 @@ public class GameScreen implements Screen {
 
                 botEmitter.activate(coordx, coordy);
             }
-            player.update(dt);
+            for (int i = 0; i < players.size(); i++) {
+                players.get(i).update(dt);
+            }
             botEmitter.update(dt);
             bulletEmitter.update(dt);
             checkCollisions();
@@ -166,9 +181,12 @@ public class GameScreen implements Screen {
                         }
                     }
                 }
-                if (checkBulletAndTank(player, bullet) && player.getCircle().contains(bullet.getPosition())) {
-                    bullet.deactivate();
-                    player.takeDamage(bullet.getDamage());
+                for (int j = 0; j < players.size(); j++) {
+                    PlayerTank player = players.get(j);
+                    if (checkBulletAndTank(player, bullet) && player.getCircle().contains(bullet.getPosition())) {
+                        bullet.deactivate();
+                        player.takeDamage(bullet.getDamage());
+                    }
                 }
                 map.checkWallAndBulletCollision(bullet);
             }
@@ -184,27 +202,8 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-        ScreenManager.getInstance().resize(width, height);
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    @Override
     public void dispose() {
-
+        atlas.dispose();
+        font24.dispose();
     }
 }

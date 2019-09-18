@@ -27,6 +27,7 @@ public class ScreenManager {
 
     private Game game;
     private GameScreen gameScreen;
+    private MenuScreen menuScreen;
     private Viewport viewport;
     private Camera camera;
 
@@ -45,6 +46,7 @@ public class ScreenManager {
         this.camera.update();
         this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.gameScreen = new GameScreen(batch);
+        this.menuScreen = new MenuScreen(batch);
     }
 
     public void resize(int width, int height) {
@@ -55,6 +57,9 @@ public class ScreenManager {
     public void setScreen(ScreenType screenType) {
         Screen currentScreen = game.getScreen();
         switch (screenType) {
+            case MENU:
+                game.setScreen(menuScreen);
+                break;
             case GAME:
                 game.setScreen(gameScreen);
                 break;

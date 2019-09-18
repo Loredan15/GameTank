@@ -11,7 +11,7 @@ public class TankRpgGame extends Game {
     public void create() {
         batch = new SpriteBatch();
         ScreenManager.getInstance().init(this, batch);
-        ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME);
+        ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
     }
 
     @Override
