@@ -32,6 +32,7 @@ public class GameScreen extends AbstractScreen {
 
     private List<PlayerTank> players;
     private BulletEmitter bulletEmitter;
+    private ItemEmitter itemEmitter;
     private BotEmitter botEmitter;
     private float gameTimer;
     private float worldTimer;
@@ -40,7 +41,14 @@ public class GameScreen extends AbstractScreen {
     private Vector2 mousePosition;
     private TextureRegion cursor;
 
+//    private Sound sound;
+//    private Music music;
+
     private static final boolean FRIENDLY_FIRE = false;
+
+    public ItemEmitter getItemEmitter() {
+        return itemEmitter;
+    }
 
     public void setGameType(GameType gameType) {
         this.gameType = gameType;
@@ -69,6 +77,10 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void show() {
+//        sound = Gdx.audio.newSound(Gdx.files.internal("boom.wav"));
+//        music = Gdx.audio.newMusic(Gdx.files.internal("song.mp3"));
+//        sound.play();
+//        music.play();
         atlas = new TextureAtlas("game.pack");
         font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
         cursor = new TextureRegion(atlas.findRegion("cursor"));
@@ -79,8 +91,9 @@ public class GameScreen extends AbstractScreen {
             players.add(new PlayerTank(2, this, KeysControl.createStandartControl2(), atlas));
         }
         bulletEmitter = new BulletEmitter(atlas);
+        itemEmitter = new ItemEmitter(atlas);
         botEmitter = new BotEmitter(this, atlas);
-        gameTimer = 6.0f;
+        gameTimer = 100.0f;
         stage = new Stage();
         mousePosition = new Vector2();
 
@@ -134,7 +147,7 @@ public class GameScreen extends AbstractScreen {
         for (int i = 0; i < players.size(); i++) {
             players.get(i).render(batch);
         }
-
+        itemEmitter.render(batch);
 
         botEmitter.render(batch);
         bulletEmitter.render(batch);
@@ -155,22 +168,26 @@ public class GameScreen extends AbstractScreen {
         worldTimer += dt;
         if (!paused) {
             gameTimer += dt;
-            if (gameTimer > 5.0f) {
+            if (gameTimer > 15.0f) {
                 gameTimer = 0;
 
-                float coordx, coordy;
-                do {
-                    coordx = MathUtils.random(0, Gdx.graphics.getWidth());
-                    coordy = MathUtils.random(0, Gdx.graphics.getHeight());
-                } while (!map.isAreaClear(coordx, coordy, 20));
+                for (int i = 0; i < 5; i++) {
+                    float coordx, coordy;
+                    do {
+                        coordx = MathUtils.random(0, Gdx.graphics.getWidth());
+                        coordy = MathUtils.random(0, Gdx.graphics.getHeight());
+                    } while (!map.isAreaClear(coordx, coordy, 20));
 
-                botEmitter.activate(coordx, coordy);
+                    botEmitter.activate(coordx, coordy);
+                }
             }
+
             for (int i = 0; i < players.size(); i++) {
                 players.get(i).update(dt);
             }
             botEmitter.update(dt);
             bulletEmitter.update(dt);
+            itemEmitter.update(dt);
             checkCollisions();
         }
         stage.act(dt);
@@ -198,6 +215,19 @@ public class GameScreen extends AbstractScreen {
                     }
                 }
                 map.checkWallAndBulletCollision(bullet);
+            }
+        }
+
+        for (int i = 0; i < itemEmitter.getItems().length; i++) {
+            if (itemEmitter.getItems()[i].isActive()) {
+                Item item = itemEmitter.getItems()[i];
+                for (int j = 0; j < players.size(); j++) {
+                    if (players.get(j).getCircle().contains(item.getPosition())) {
+                        players.get(j).consumePowerUp(item);
+                        item.deactivate();
+                        break;
+                    }
+                }
             }
         }
     }

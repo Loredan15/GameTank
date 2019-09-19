@@ -53,6 +53,7 @@ public class BotTank extends Tank {
 
     @Override
     public void destroy() {
+        gameScreen.getItemEmitter().generateRandomItem(position.x, position.y, 3, 0.5f);
         active = false;
     }
 
